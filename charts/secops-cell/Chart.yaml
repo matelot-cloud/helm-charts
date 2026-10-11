@@ -12,6 +12,6 @@ maintainers:
     url: https://github.com/matelot-io
 icon: https://matelot-io.github.io/website/assets/logo.png
 type: application
-version: 0.1.0
-appVersion: "0.1.0"
+version: 0.1.0-rc.3
+appVersion: "0.1.0-rc.3"
 keywords: [security, compliance, sbom, devsecops]

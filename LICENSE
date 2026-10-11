@@ -1,0 +1,42 @@
+Matelot Customer Licence Agreement (EULA)
+Version 0.1 — draft, pending legal review
+
+Matelot (the "Software") — the container images, Helm charts, command-line tools and documentation published by
+Matelot ("we", "us") — is proprietary software. It is licensed, not sold.
+
+1. Licence. Subject to this agreement and to an active subscription (or the Free tier where offered), we grant you
+   a non-exclusive, non-transferable, revocable licence to install and run the Software on infrastructure you
+   control, for your organization's internal business purposes, for the number of users your subscription covers.
+
+2. Restrictions. You may not: (a) sell, rent, lease, sublicense, host for third parties or otherwise provide the
+   Software as a service to anyone outside your organization, except as expressly permitted by an MSSP or reseller
+   agreement with us; (b) reverse engineer, decompile or disassemble the Software, or attempt to derive its source
+   code, except to the extent applicable law expressly permits; (c) remove or alter any proprietary notice;
+   (d) circumvent licence, user-count or feature restrictions; (e) publish benchmarks of the Software without our
+   consent.
+
+3. Your data. Everything the Software processes stays on your infrastructure. We do not access your data unless you
+   send it to us (for example in a support request), and then only to provide support.
+
+4. Third-party components. The Software contains open-source components under their own licences, listed in the SBOM
+   published with every release. Those licences apply to those components.
+
+5. Updates and support. Releases, release notes and security advisories are published on GitHub. Support is provided
+   according to your subscription tier (see SUPPORT.md).
+
+6. Warranty disclaimer. THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT, TO THE EXTENT PERMITTED BY LAW.
+
+7. Limitation of liability. TO THE EXTENT PERMITTED BY LAW, WE ARE NOT LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL OR
+   CONSEQUENTIAL DAMAGES, AND OUR TOTAL LIABILITY UNDER THIS AGREEMENT IS LIMITED TO THE FEES YOU PAID FOR THE
+   SOFTWARE IN THE TWELVE MONTHS BEFORE THE CLAIM.
+
+8. Term and termination. This agreement lasts as long as your subscription. It terminates automatically if you breach
+   it; on termination you stop using the Software and delete the images and charts. Sections 3, 4, 6, 7 and 9 survive.
+
+9. General. This agreement is governed by the laws of the country in which Matelot is established, excluding its
+   conflict-of-law rules; the courts of that country have exclusive jurisdiction. If a provision is unenforceable,
+   the rest remains in force. This is the entire agreement between you and us about the Software, unless you have a
+   separately signed agreement with us, which prevails.
+
+Contact: sales@matelot.io · security@matelot.io

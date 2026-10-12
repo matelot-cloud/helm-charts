@@ -17,3 +17,5 @@ jobs:
       - run: helm template t charts/secops-cell --set tenant.slug=t --set tenant.domain=example.com > /dev/null
       - run: for f in scripts/*.sh scripts/lib/*.sh charts/secops-cell/files/*.sh; do bash -n "$f"; done
       - run: python3 -m py_compile scripts/lib/cellwait.py
+      - name: No retired organization name survives
+        run: '! grep -rnI --fixed-strings "matelot-""io" --exclude-dir=.git . || { echo "old organization name found"; exit 1; }'

@@ -1,6 +1,6 @@
-# matelot-io/helm-charts
+# matelot-cloud/helm-charts
 
-The Helm chart that installs a [Matelot](https://matelot-io.github.io/website/) cell — the self-hosted product-security
+The Helm chart that installs a [Matelot](https://matelot-cloud.github.io/website/) cell — the self-hosted product-security
 platform — plus the operator scripts for backups and restores.
 
 | Path | What |
@@ -11,21 +11,21 @@ platform — plus the operator scripts for backups and restores.
 The chart is **published as an OCI package**, which is how you install it; this repository is its readable copy. Both
 are written by Matelot's release pipeline — the folder here is overwritten on every release (tags `secops-cell-X.Y.Z`),
 so pull requests against the chart cannot be merged; report problems in
-[matelot-io/matelot](https://github.com/matelot-io/matelot/issues).
+[matelot-cloud/matelot](https://github.com/matelot-cloud/matelot/issues).
 
 ## Install
 
 ```bash
-helm show values oci://ghcr.io/matelot-io/charts/secops-cell --version 0.1.0 > values.yaml
+helm show values oci://ghcr.io/matelot-cloud/charts/secops-cell --version 0.1.0 > values.yaml
 # edit: tenant (slug, name, domain, adminEmails), ingress (className, tls, annotations), postgres.password,
 #       keycloak.adminPassword, backup
-helm install acme oci://ghcr.io/matelot-io/charts/secops-cell --version 0.1.0 \
+helm install acme oci://ghcr.io/matelot-cloud/charts/secops-cell --version 0.1.0 \
   --namespace tenant-acme --create-namespace -f values.yaml
 kubectl -n tenant-acme get pods -w
 ```
 
 The full guide — requirements, every value that matters, first administrator, CLI, backups, upgrades, removal — is
-the **[install guide](https://matelot-io.github.io/website/docs/latest/install.html)**. In short:
+the **[install guide](https://matelot-cloud.github.io/website/docs/latest/install.html)**. In short:
 
 ### Values that matter
 
@@ -51,7 +51,7 @@ backup:
   s3: { enabled: false }          # optional off-site copy: bucket, region, credentialsSecret or workload identity
 ```
 
-Images default to `ghcr.io/matelot-io/{api,worker,web,runner}` at the chart's `appVersion`.
+Images default to `ghcr.io/matelot-cloud/{api,worker,web,runner}` at the chart's `appVersion`.
 
 ### Ingress and TLS
 
@@ -82,23 +82,23 @@ scripts/cell-restore.sh -r acme -n tenant-acme ./backups/acme-….tar.gz
 
 The archive contains the encryption key and passwords: restrict access to it. Rebuilding a cell on a new cluster
 restores the Secrets **before** `helm install` (`--secrets-only`, install, `--databases-only`) — see the
-[backup and restore guide](https://matelot-io.github.io/website/docs/latest/backup-restore.html).
+[backup and restore guide](https://matelot-cloud.github.io/website/docs/latest/backup-restore.html).
 
 ### Upgrades
 
 ```bash
-helm upgrade acme oci://ghcr.io/matelot-io/charts/secops-cell --version 0.2.0 --namespace tenant-acme -f values.yaml
+helm upgrade acme oci://ghcr.io/matelot-cloud/charts/secops-cell --version 0.2.0 --namespace tenant-acme -f values.yaml
 ```
 
 Back up first. Migrations run in the API's init container; a release rolls only the api, worker, web and runner
-pods. Release notes and digests: https://github.com/matelot-io/matelot/releases.
+pods. Release notes and digests: https://github.com/matelot-cloud/matelot/releases.
 
 ## Verifying the chart
 
 ```bash
-helm pull oci://ghcr.io/matelot-io/charts/secops-cell --version 0.1.0
-cosign verify ghcr.io/matelot-io/charts/secops-cell:0.1.0 \
-  --certificate-identity-regexp 'https://github.com/matelot-io/platform/' \
+helm pull oci://ghcr.io/matelot-cloud/charts/secops-cell --version 0.1.0
+cosign verify ghcr.io/matelot-cloud/charts/secops-cell:0.1.0 \
+  --certificate-identity-regexp 'https://github.com/matelot-cloud/platform/' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 

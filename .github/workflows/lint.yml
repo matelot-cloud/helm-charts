@@ -8,10 +8,10 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: azure/setup-helm@v4
+      - uses: actions/checkout@v7
+      - uses: azure/setup-helm@v5
       - run: helm lint charts/secops-cell
       - run: helm lint charts/secops-cell -f charts/secops-cell/values-production.example.yaml
       - run: helm template t charts/secops-cell --set tenant.slug=t --set tenant.domain=example.com > /dev/null

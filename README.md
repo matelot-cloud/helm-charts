@@ -1,6 +1,6 @@
 # matelot-cloud/helm-charts
 
-The Helm chart that installs a [Matelot](https://matelot-cloud.github.io/website/) cell — the self-hosted product-security
+The Helm chart that installs a [Matelot](https://matelot.cloud/) cell — the self-hosted product-security
 platform — plus the operator scripts for backups and restores.
 
 | Path | What |
@@ -25,7 +25,7 @@ kubectl -n tenant-acme get pods -w
 ```
 
 The full guide — requirements, every value that matters, first administrator, CLI, backups, upgrades, removal — is
-the **[install guide](https://matelot-cloud.github.io/website/docs/latest/install.html)**. In short:
+the **[install guide](https://matelot.cloud/docs/latest/install.html)**. In short:
 
 ### Values that matter
 
@@ -82,7 +82,7 @@ scripts/cell-restore.sh -r acme -n tenant-acme ./backups/acme-….tar.gz
 
 The archive contains the encryption key and passwords: restrict access to it. Rebuilding a cell on a new cluster
 restores the Secrets **before** `helm install` (`--secrets-only`, install, `--databases-only`) — see the
-[backup and restore guide](https://matelot-cloud.github.io/website/docs/latest/backup-restore.html).
+[backup and restore guide](https://matelot.cloud/docs/latest/backup-restore.html).
 
 ### Upgrades
 

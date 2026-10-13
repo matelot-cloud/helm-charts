@@ -12,6 +12,6 @@ maintainers:
     url: https://github.com/matelot-cloud
 icon: https://matelot-cloud.github.io/website/assets/logo.png
 type: application
-version: 0.1.0-rc.7
-appVersion: "0.1.0-rc.7"
+version: 0.1.0
+appVersion: "0.1.0"
 keywords: [security, compliance, sbom, devsecops]

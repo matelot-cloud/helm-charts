@@ -61,6 +61,11 @@ into the Secrets `<release>-app-tls`, `<release>-keycloak-tls` and `<release>-re
 those Secrets yourself with the same names. `ingress.controllerNamespace` is used by the NetworkPolicy. A wildcard DNS
 record `*.<domain>` is simplest.
 
+TLS is mandatory for any hostname other than `localhost`: browsers treat only `https://` and `localhost` as secure
+contexts and the Keycloak login page needs one (`Crypto.subtle is available only in secure contexts`). With
+`ingress.tls: false` on a real hostname the API and the CLI work, but nobody can sign in with a browser — the install
+notes and an annotation on the Ingress warn about it. A local cluster can use a self-signed cert-manager issuer.
+
 ### Database
 
 `postgres.bundled: true` runs Postgres in the cell on a volume. For a managed database set `postgres.bundled: false`,

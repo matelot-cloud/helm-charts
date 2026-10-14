@@ -4,9 +4,13 @@
 // URL-shaped settings through the admin API and nothing else: realm sslRequired, and per client (matched by clientId)
 // redirectUris, webOrigins, rootUrl, baseUrl, adminUrl, the post-logout redirect attribute. Users, groups, roles,
 // credentials and anything created by hand stay untouched; clients missing in the realm are reported, not created.
+// It also seeds the first administrators: every e-mail in SEED_USERS that has no user in the realm gets one (username =
+// e-mail, enabled, verified) with SEED_PASSWORD as a TEMPORARY password — the first login forces a change. Users that
+// exist are never modified (not their password, not their flags), so the operator's or the IdP's users are safe.
 // Runs as the chart's post-install/post-upgrade hook Job and as `compose-init.sh realm-update`.
 //   node realm-sync.js <keycloak base URL, e.g. http://acme-keycloak:8080 or http://keycloak:8080/auth> <realm.json>
 //   env: KC_BOOTSTRAP_ADMIN_USERNAME, KC_BOOTSTRAP_ADMIN_PASSWORD (the bootstrap admin of the master realm)
+//        SEED_USERS (comma-separated e-mails, optional), SEED_PASSWORD (their initial temporary password)
 //        REALM_SYNC_TIMEOUT (seconds to wait for Keycloak, default 300)
 'use strict';
 const fs = require('node:fs');
@@ -51,7 +55,7 @@ function clientPatch(current, rendered) {
   return Object.keys(patch).length ? patch : null;
 }
 
-async function sync(base, realmFile, { username, password, timeoutSeconds = 300, log = console.log } = {}) {
+async function sync(base, realmFile, { username, password, timeoutSeconds = 300, log = console.log, seedUsers = [], seedPassword = '' } = {}) {
   const rendered = JSON.parse(fs.readFileSync(realmFile, 'utf8'));
   const realm = rendered.realm;
   await waitForKeycloak(base, timeoutSeconds, log);
@@ -81,6 +85,14 @@ async function sync(base, realmFile, { username, password, timeoutSeconds = 300,
     if (!r.ok) throw new Error(`client ${want.clientId} update: HTTP ${r.status}`);
     changes.push(`client ${want.clientId}: ${Object.keys(patch).join(', ')}${patch.redirectUris ? ` → ${patch.redirectUris.join(' ')}` : ''}`);
   }
+  for (const email of seedUsers.map((e) => e.trim().toLowerCase()).filter(Boolean)) {
+    const found = await (await fetch(`${admin}/users?email=${encodeURIComponent(email)}&exact=true`, { headers: h })).json();
+    if (Array.isArray(found) && found.length) continue;   // exists: never touched
+    if (!seedPassword) { log(`user ${email}: missing and no SEED_PASSWORD — not created`); continue; }
+    const r = await fetch(`${admin}/users`, { method: 'POST', headers: h, body: JSON.stringify({ username: email, email, enabled: true, emailVerified: true, credentials: [{ type: 'password', value: seedPassword, temporary: true }] }) });
+    if (!r.ok && r.status !== 409) throw new Error(`user ${email} create: HTTP ${r.status} ${await r.text().catch(() => '')}`.trim());
+    if (r.ok) changes.push(`user ${email} created (temporary password: the first login asks for a new one)`);
+  }
   log(changes.length ? `realm ${realm} synced: ${changes.join('; ')}` : `realm ${realm}: already in sync`);
   return changes;
 }
@@ -89,7 +101,7 @@ module.exports = { sync, clientPatch };
 if (require.main === module) {
   const [base, file] = process.argv.slice(2);
   if (!base || !file) { console.error('usage: node realm-sync.js <keycloak base URL> <realm.json>'); process.exit(2); }
-  const { KC_BOOTSTRAP_ADMIN_USERNAME: username, KC_BOOTSTRAP_ADMIN_PASSWORD: password, REALM_SYNC_TIMEOUT } = process.env;
+  const { KC_BOOTSTRAP_ADMIN_USERNAME: username, KC_BOOTSTRAP_ADMIN_PASSWORD: password, REALM_SYNC_TIMEOUT, SEED_USERS, SEED_PASSWORD } = process.env;
   if (!username || !password) { console.error('KC_BOOTSTRAP_ADMIN_USERNAME / KC_BOOTSTRAP_ADMIN_PASSWORD are required'); process.exit(2); }
-  sync(base.replace(/\/+$/, ''), file, { username, password, timeoutSeconds: Number(REALM_SYNC_TIMEOUT ?? 300) }).catch((e) => { console.error(e.message); process.exit(1); });
+  sync(base.replace(/\/+$/, ''), file, { username, password, timeoutSeconds: Number(REALM_SYNC_TIMEOUT ?? 300), seedUsers: (SEED_USERS ?? '').split(','), seedPassword: SEED_PASSWORD ?? '' }).catch((e) => { console.error(e.message); process.exit(1); });
 }

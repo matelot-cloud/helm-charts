@@ -11,6 +11,7 @@ const { sync, clientPatch } = require('./realm-sync.js');
 
 const state = {
   realm: { realm: 'platform', sslRequired: 'none', enabled: true, displayName: 'Keep me' },
+  users: [{ id: 'u1', username: 'old@acme.local', email: 'old@acme.local', enabled: false, credentials: 'keep' }],
   clients: [
     { id: 'c1', clientId: 'platform-web', publicClient: true, redirectUris: ['http://acme.platform.local/*'], webOrigins: ['+'], attributes: { 'pkce.code.challenge.method': 'S256', 'post.logout.redirect.uris': '+', 'made.by.hand': 'yes' }, protocolMappers: [{ name: 'platform-api-audience' }] },
     { id: 'c2', clientId: 'platform-api', bearerOnly: true },
@@ -30,6 +31,8 @@ const server = http.createServer((req, res) => {
     if (u.pathname === '/auth/admin/realms/platform' && req.method === 'GET') return json(200, state.realm);
     if (u.pathname === '/auth/admin/realms/platform' && req.method === 'PUT') { Object.assign(state.realm, JSON.parse(body)); return json(204, {}); }
     if (u.pathname === '/auth/admin/realms/platform/clients' && req.method === 'GET') return json(200, state.clients.filter((c) => c.clientId === u.searchParams.get('clientId')));
+    if (u.pathname === '/auth/admin/realms/platform/users' && req.method === 'GET') return json(200, state.users.filter((x) => x.email === u.searchParams.get('email')));
+    if (u.pathname === '/auth/admin/realms/platform/users' && req.method === 'POST') { const nu = JSON.parse(body); state.users.push({ id: `u${state.users.length + 1}`, ...nu }); res.writeHead(201, { location: `/x/${state.users.length}` }); return res.end(); }
     const m = /^\/auth\/admin\/realms\/platform\/clients\/(.+)$/.exec(u.pathname);
     if (m && req.method === 'PUT') { const i = state.clients.findIndex((c) => c.id === m[1]); state.clients[i] = JSON.parse(body); return json(204, {}); }
     json(404, { path: u.pathname });
@@ -61,7 +64,17 @@ const server = http.createServer((req, res) => {
   assert.deepEqual(web.redirectUris, ['https://acme.platform.local/*']);
   assert.equal(web.attributes['made.by.hand'], 'yes', 'hand-made attributes survive');
   assert.deepEqual(web.protocolMappers, [{ name: 'platform-api-audience' }], 'mappers untouched');
-  assert.ok(!calls.some((c) => /users|roles|groups/.test(c)), 'users, roles and groups are never touched');
+  assert.ok(!calls.some((c) => /users|roles|groups/.test(c)), 'without SEED_USERS, users, roles and groups are never touched');
+  // seeding: a missing administrator is created with a temporary password; an existing user is left exactly as it was
+  const seeded = await sync(base, file, { username: 'admin', password: 's3cret', timeoutSeconds: 5, log: () => {}, seedUsers: ['New@acme.local', ' old@acme.local ', ''], seedPassword: 'first-login' });
+  assert.deepEqual(seeded, ['user new@acme.local created (temporary password: the first login asks for a new one)']);
+  const created = state.users.find((x) => x.email === 'new@acme.local');
+  assert.deepEqual(created.credentials, [{ type: 'password', value: 'first-login', temporary: true }]);
+  assert.equal(created.enabled, true); assert.equal(created.emailVerified, true); assert.equal(created.username, 'new@acme.local');
+  assert.deepEqual(state.users[0], { id: 'u1', username: 'old@acme.local', email: 'old@acme.local', enabled: false, credentials: 'keep' }, 'existing user untouched');
+  assert.ok(!calls.some((c) => /PUT .*\/users\//.test(c)), 'no user is ever updated');
+  // a second seeding run creates nothing
+  assert.deepEqual(await sync(base, file, { username: 'admin', password: 's3cret', timeoutSeconds: 5, log: () => {}, seedUsers: ['new@acme.local'], seedPassword: 'x' }), []);
   assert.ok(logs.some((l) => l.includes('client not-imported: not in the realm')), 'missing clients are reported, not created');
   // idempotent
   assert.deepEqual(await sync(base, file, { username: 'admin', password: 's3cret', timeoutSeconds: 5, log: () => {} }), []);
@@ -69,5 +82,5 @@ const server = http.createServer((req, res) => {
   assert.equal(clientPatch({ redirectUris: ['b', 'a'] }, { redirectUris: ['a', 'b'] }), null, 'order does not matter');
   assert.deepEqual(clientPatch({ redirectUris: ['a'], attributes: { x: '1' } }, { redirectUris: ['a'], attributes: { 'post.logout.redirect.uris': '+' } }), { attributes: { x: '1', 'post.logout.redirect.uris': '+' } });
   server.close();
-  console.log('realm-sync ok (http → https upgrade applied; users, roles, mappers and hand-made attributes untouched; idempotent)');
+  console.log('realm-sync ok (http → https upgrade applied; users, roles, mappers and hand-made attributes untouched; missing admins seeded with a temporary password, existing users never modified; idempotent)');
 })().catch((e) => { console.error(e); process.exit(1); });

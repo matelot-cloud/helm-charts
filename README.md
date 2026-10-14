@@ -34,7 +34,7 @@ tenant:
   slug: acme                      # DNS label: hostnames acme.<domain>, auth-acme.<domain>, registry-acme.<domain>
   name: "ACME Corporation"
   domain: platform.example.com
-  adminEmails: ["ciso@acme.com"]  # first login becomes administrator of the root organization
+  adminEmails: ["ciso@acme.com"]  # seeded in Keycloak with a temporary password (Secret <release>-keycloak, SEED_ADMIN_PASSWORD); first login becomes administrator of the root organization
 ingress:
   className: nginx
   tls: true

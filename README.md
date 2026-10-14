@@ -66,6 +66,11 @@ contexts and the Keycloak login page needs one (`Crypto.subtle is available only
 `ingress.tls: false` on a real hostname the API and the CLI work, but nobody can sign in with a browser — the install
 notes and an annotation on the Ingress warn about it. A local cluster can use a self-signed cert-manager issuer.
 
+Changing the scheme or the domain of an installed cell is a normal `helm upgrade`: Keycloak imports the realm only once
+(`--import-realm` ignores an existing realm), so the chart's post-install/post-upgrade hook Job `<release>-realm-sync`
+applies the rendered realm's URL settings (redirect URIs, web origins, `sslRequired`) through the admin API. Users,
+roles and anything created by hand in the realm are not touched.
+
 ### Database
 
 `postgres.bundled: true` runs Postgres in the cell on a volume. For a managed database set `postgres.bundled: false`,

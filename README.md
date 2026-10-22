@@ -103,6 +103,13 @@ helm upgrade acme oci://ghcr.io/matelot-cloud/charts/secops-cell --version 0.2.0
 Back up first. Migrations run in the API's init container; a release rolls only the api, worker, web and runner
 pods. Release notes and digests: https://github.com/matelot-cloud/matelot/releases.
 
+## Monitoring
+
+`observability.metrics.serviceMonitor`, `observability.metrics.exporters` and `observability.otlp.endpoint` connect a
+cell to kube-prometheus-stack, Tempo and Loki (or any OTLP collector). The values the chart is tested with for those
+stacks are in [`examples/observability/`](examples/observability/); the guide is
+https://matelot-cloud.github.io/website/docs/latest/observability.html.
+
 ## Verifying the chart
 
 ```bash

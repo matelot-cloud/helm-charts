@@ -106,9 +106,10 @@ pods. Release notes and digests: https://github.com/matelot-cloud/matelot/releas
 ## Monitoring
 
 `observability.metrics.serviceMonitor`, `observability.metrics.exporters` and `observability.otlp.endpoint` connect a
-cell to kube-prometheus-stack, Tempo and Loki (or any OTLP collector). The values the chart is tested with for those
-stacks are in [`examples/observability/`](examples/observability/); the guide is
-https://matelot-cloud.github.io/website/docs/latest/observability.html.
+cell to kube-prometheus-stack, Tempo and Loki (or any OTLP collector); `observability.prometheusRules` and
+`observability.grafana.dashboards` add the alert rules and the four dashboards the chart ships (the same files are in
+[`examples/observability/`](examples/observability/) for a manual import, next to the values the chart is tested
+with for those stacks). The guide, with a runbook per alert: https://matelot-cloud.github.io/website/docs/latest/observability.html.
 
 ## Verifying the chart
 

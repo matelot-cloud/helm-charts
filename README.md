@@ -109,7 +109,7 @@ pods. Release notes and digests: https://github.com/matelot-cloud/matelot/releas
 cell to kube-prometheus-stack, Tempo and Loki (or any OTLP collector); `observability.prometheusRules` and
 `observability.grafana.dashboards` add the alert rules and the four dashboards the chart ships (the same files are in
 [`examples/observability/`](examples/observability/) for a manual import, next to the values the chart is tested
-with for those stacks). The guide, with a runbook per alert: https://matelot-cloud.github.io/website/docs/latest/observability.html.
+with for those stacks). The guide, with a runbook per alert: https://matelot.cloud/docs/latest/observability.html.
 
 ## Verifying the chart
 
